@@ -2,6 +2,31 @@ import streamlit as st
 import pickle
 import pandas as pd
 import requests
+import os
+
+
+# Function to download the large file dynamically from Google Drive
+def download_large_file():
+    file_id = "12QsufaBXWapJhKFbA2dmHfdB7zklvXxC"
+    output_filename = "similarity.pkl"
+
+    # Only download if the file doesn't exist locally on the server yet
+    if not os.path.exists(output_filename):
+        with st.spinner("Downloading machine learning model... Please wait..."):
+            url = f"https://google.com{file_id}"
+            response = requests.get(url, stream=True)
+            with open(output_filename, "wb") as f:
+                for chunk in response.iter_content(chunk_size=32768):
+                    if chunk:
+                        f.write(chunk)
+
+
+# Run the download function before trying to open the file
+download_large_file()
+
+
+# Your existing pickle opening code stays below here:
+# similarity = pickle.load(open('similarity.pkl', 'rb'))
 
 def fetch_poster(movie_id):
     response = requests.get('https://api.themoviedb.org/3/movie/{}?api_key=c5009cf7a26dfa0a4df31b08344ddec4&language=en-US'.format(movie_id))
